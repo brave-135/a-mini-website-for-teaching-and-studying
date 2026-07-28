@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About - My Space</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',sans-serif;background:#0a0e17;color:#e0e0e0}
+nav{background:#0f1729;border-bottom:1px solid #1e2d4a;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+nav .logo{font-size:22px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .links{display:flex;gap:24px}
+nav .links a{color:#8892b0;text-decoration:none;font-size:15px;padding:6px 0;border-bottom:2px solid transparent;transition:all .3s}
+nav .links a:hover{color:#00d4ff;border-bottom-color:#00d4ff}
+nav .links a.active{color:#00d4ff;border-bottom-color:#00d4ff}
+.container{max-width:700px;margin:0 auto;padding:60px 20px}
+.container h1{font-size:32px;margin-bottom:20px}
+.section{background:#131b30;border:1px solid #1e2d4a;border-radius:12px;padding:24px;margin-bottom:16px}
+.section h3{color:#00d4ff;margin-bottom:8px}
+.section p{color:#8892b0;font-size:14px;line-height:1.6}
+.section .tag{display:inline-block;padding:4px 10px;background:#0a0e17;border:1px solid #1e2d4a;border-radius:4px;color:#5a6a8a;font-size:12px;margin:2px}
+.section code{background:#0a0e17;padding:2px 6px;border-radius:3px;font-size:13px;color:#7b9fff}
+footer{text-align:center;padding:30px;color:#4a5a7a;font-size:13px;border-top:1px solid #1a2338}
+</style>
+</head>
+<body>
+<nav>
+    <div class="logo">My Space</div>
+    <div class="links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/editor.html">Python</a>
+        <a href="/about.html" class="active">About</a>
+    </div>
+</nav>
+<div class="container">
+    <h1>About This Site</h1>
+    <div class="section">
+        <h3>Built With</h3>
+        <p>This website is built entirely with Python standard library - no Flask, no Django, no npm. Just <code>http.server</code> and vanilla HTML/CSS/JavaScript.</p>
+        <p style="margin-top:10px"><span class="tag">Python</span><span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag">JavaScript</span></p>
+    </div>
+    <div class="section">
+        <h3>Features</h3>
+        <p>Blog - Create, edit, and publish articles<br>Python Playground - Write and run Python code in browser<br>Dark theme - Easy on the eyes</p>
+    </div>
+    <div class="section">
+        <h3>Purpose</h3>
+        <p>A personal space for learning, experimenting, and sharing. Built as a coding project to understand how web servers work from the ground up.</p>
+    </div>
+</div>
+<footer>&copy; 2026 My Space</footer>
+<script>
+async function checkNav(){try{const r=await fetch("/api/me");const d=await r.json();if(d.ok){document.getElementById("userInfo").textContent="("+d.user+")";document.getElementById("loginLink").style.display="none";document.getElementById("logoutBtn").style.display="inline-block"}else{document.getElementById("loginLink").style.display="inline"}}catch(e){}}
+async function doLogout(){try{await fetch("/api/logout",{method:"POST"})}catch(e){}window.location.href="/"}
+checkNav()
+</script></body>
+</html>

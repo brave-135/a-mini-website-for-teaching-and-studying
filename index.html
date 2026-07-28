@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Space</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',sans-serif;background:#0a0e17;color:#e0e0e0}
+nav{background:#0f1729;border-bottom:1px solid #1e2d4a;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+nav .logo{font-size:22px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .links{display:flex;gap:24px}
+nav .links a{color:#8892b0;text-decoration:none;font-size:15px;padding:6px 0;border-bottom:2px solid transparent;transition:all .3s}
+nav .links a:hover{color:#00d4ff;border-bottom-color:#00d4ff}
+.hero{text-align:center;padding:100px 40px 60px}
+.hero h1{font-size:48px;margin-bottom:16px;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#8892b0;font-size:18px;max-width:600px;margin:0 auto 40px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto;padding:0 40px 80px}
+.card{background:#131b30;border:1px solid #1e2d4a;border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all .3s;text-decoration:none;color:inherit;display:block}
+.card:hover{transform:translateY(-4px);border-color:#2a3d66;box-shadow:0 8px 25px rgba(0,0,0,.4)}
+.card .icon{font-size:40px;margin-bottom:16px}
+.card h3{font-size:18px;margin-bottom:8px;color:#e0e0e0}
+.card p{color:#5a6a8a;font-size:14px}
+footer{text-align:center;padding:30px;color:#4a5a7a;font-size:13px;border-top:1px solid #1a2338}
+</style>
+</head>
+<body>
+<nav>
+    <div class="logo">My Space</div>
+    <div class="links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/editor.html">Python</a>
+        <a href="/about.html">About</a>
+    </div>
+</nav>
+<div class="hero">
+    <h1>Welcome to My Space</h1>
+    <p>A personal website for blogging, coding, and sharing ideas</p>
+</div>
+<div class="cards">
+    <a href="/blog.html" class="card"><div class="icon">📝</div><h3>Blog</h3><p>Write and publish articles</p></a>
+    <a href="/editor.html" class="card"><div class="icon">🐍</div><h3>Python Playground</h3><p>Write and run Python code online</p></a>
+    <a href="/about.html" class="card"><div class="icon">👤</div><h3>About Me</h3><p>Learn more about this site</p></a>
+</div>
+<footer>&copy; 2026 My Space. Built with Python.</footer>
+<script>
+async function checkNav(){try{const r=await fetch("/api/me");const d=await r.json();if(d.ok){document.getElementById("userInfo").textContent="("+d.user+")";document.getElementById("loginLink").style.display="none";document.getElementById("logoutBtn").style.display="inline-block"}else{document.getElementById("loginLink").style.display="inline"}}catch(e){}}
+async function doLogout(){try{await fetch("/api/logout",{method:"POST"})}catch(e){}window.location.href="/"}
+checkNav()
+</script></body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog - My Space</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',sans-serif;background:#0a0e17;color:#e0e0e0}
+nav{background:#0f1729;border-bottom:1px solid #1e2d4a;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+nav .logo{font-size:22px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .links{display:flex;gap:24px;align-items:center}
+nav .links a{color:#8892b0;text-decoration:none;font-size:15px;padding:6px 0;border-bottom:2px solid transparent;transition:all .3s}
+nav .links a:hover{color:#00d4ff;border-bottom-color:#00d4ff}
+nav .links a.active{color:#00d4ff;border-bottom-color:#00d4ff}
+nav .links .user-info{color:#5a6a8a;font-size:13px;margin-left:8px}
+nav .links .logout-btn{color:#ff6b6b;font-size:13px;cursor:pointer;background:none;border:none;padding:4px 8px}
+nav .links .logout-btn:hover{text-decoration:underline}
+.container{max-width:860px;margin:0 auto;padding:40px 20px}
+.container h1{font-size:32px;margin-bottom:8px}
+.container .sub{color:#5a6a8a;margin-bottom:30px}
+.blog-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.blog-controls button{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.blog-controls button:hover{opacity:.9}
+.post-list{display:flex;flex-direction:column;gap:16px}
+.post-card{background:#131b30;border:1px solid #1e2d4a;border-radius:12px;padding:24px;cursor:pointer;transition:all .3s}
+.post-card:hover{border-color:#2a3d66;transform:translateY(-2px)}
+.post-card h3{font-size:18px;color:#e0e0e0;margin-bottom:6px}
+.post-card .meta{color:#5a6a8a;font-size:12px;margin-bottom:10px}
+.post-card .summary{color:#8892b0;font-size:14px;line-height:1.5}
+.post-card .actions{display:flex;gap:8px;margin-top:12px}
+.post-card .actions button{padding:4px 12px;border-radius:4px;border:1px solid #1e2d4a;background:transparent;color:#8892b0;cursor:pointer;font-size:12px}
+.post-card .actions button:hover{border-color:#2a3d66;color:#e0e0e0}
+.post-card .actions .del:hover{color:#ff4444;border-color:#5c1a1a}
+.empty{text-align:center;padding:60px 20px;color:#4a5a7a}
+.empty .icon{font-size:48px;margin-bottom:12px}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center}
+.modal.active{display:flex}
+.modal-box{background:#131b30;border:1px solid #2a3d66;border-radius:16px;padding:30px;max-width:700px;width:90%;max-height:85vh;overflow-y:auto}
+.modal-box h2{color:#00d4ff;margin-bottom:16px}
+.modal-box label{color:#5a6a8a;font-size:13px;display:block;margin-bottom:4px;margin-top:12px}
+.modal-box input,.modal-box textarea{width:100%;padding:10px 12px;background:#0a0e17;border:1px solid #1e2d4a;border-radius:6px;color:#e0e0e0;font-size:14px;font-family:inherit}
+.modal-box textarea{min-height:300px;resize:vertical;font-family:Consolas,monospace;line-height:1.5}
+.modal-box .btn-row{display:flex;gap:8px;margin-top:20px}
+.modal-box .btn-row button{padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600}
+.modal-box .btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff;border:none}
+.modal-box .btn-secondary{background:transparent;border:1px solid #1e2d4a;color:#8892b0}
+.modal-box .btn-primary:hover{opacity:.9}
+.modal-box .btn-secondary:hover{background:#1a2338}
+.view-box .content{background:#0a0e17;border:1px solid #1e2d4a;border-radius:8px;padding:20px;margin-top:12px;line-height:1.7;white-space:pre-wrap;font-size:14px;color:#c0c8d8}
+.view-box .meta{color:#5a6a8a;font-size:12px;margin-bottom:4px}
+.view-box h2{color:#00d4ff}
+footer{text-align:center;padding:30px;color:#4a5a7a;font-size:13px;border-top:1px solid #1a2338}
+.notification{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1a3a1a;border:1px solid #4ade80;color:#4ade80;padding:12px 24px;border-radius:8px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none}
+.notification.show{opacity:1}</style>
+</head>
+<body>
+<div class="notification" id="notification">📝 New post added</div><nav>
+    <div class="logo">My Space</div>
+    <div class="links">
+        <a href="/">Home</a>
+        <a href="/blog.html" class="active">Blog</a>
+        <a href="/editor.html">Python</a>
+        <a href="/about.html">About</a>
+        <span class="user-info" id="userInfo"></span>
+        <button class="logout-btn" id="logoutBtn" style="display:none" onclick="doLogout()">Logout</button>
+    </div>
+</nav>
+<div class="container">
+    <h1>Blog</h1>
+    <div class="sub">Write and share your thoughts</div>
+    <div class="blog-controls">
+        <span id="postCount" style="color:#5a6a8a"></span>
+        <button onclick="openNew()">+ New Post</button>
+    </div>
+    <div class="post-list" id="postList">
+        <div class="empty"><div class="icon">📭</div><div>No posts yet</div></div>
+    </div>
+</div>
+<div class="modal" id="editModal" onclick="if(event.target==this)closeEdit()">
+    <div class="modal-box">
+        <h2 id="editTitle">New Post</h2>
+        <label>Title</label>
+        <input type="text" id="postTitle" placeholder="Post title">
+        <label>Content</label>
+        <textarea id="postContent" placeholder="Write your post here..."></textarea>
+        <div class="btn-row">
+            <button class="btn-primary" onclick="savePost()">Publish</button>
+            <button class="btn-secondary" onclick="closeEdit()">Cancel</button>
+        </div>
+    </div>
+</div>
+<div class="modal" id="viewModal" onclick="if(event.target==this)closeView()">
+    <div class="modal-box view-box">
+        <h2 id="viewTitle">Post</h2>
+        <div class="meta" id="viewMeta"></div>
+        <div class="content" id="viewContent"></div>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="closeView()">Close</button>
+        </div>
+    </div>
+</div>
+<script>
+let posts=[]
+let editingId=null
+let loggedIn=false
+
+async function checkAuth(){
+    try{
+        const r=await fetch('/api/me')
+        const d=await r.json()
+        if(d.ok){
+            loggedIn=true
+            document.getElementById('userInfo').textContent='('+d.user+')'
+            document.getElementById('logoutBtn').style.display='inline-block'
+        }else{
+            window.location.href='/login.html'
+        }
+    }catch(e){window.location.href='/login.html'}
+}
+
+async function loadPosts(){
+    try{
+        const r=await fetch('/api/posts')
+        posts=await r.json()
+        render()
+    }catch(e){
+        document.getElementById('postList').innerHTML='<div class="empty"><div class="icon">❌</div><div>Failed to load</div></div>'
+    }
+}
+
+async function doLogout(){
+    try{await fetch('/api/logout',{method:'POST'})}catch(e){}
+    window.location.href='/'
+}
+
+function render(){
+    const list=document.getElementById('postList')
+    document.getElementById('postCount').textContent=posts.length+' posts'
+    if(!posts.length){
+        list.innerHTML='<div class="empty"><div class="icon">📭</div><div>No posts yet</div></div>'
+        return
+    }
+    let html=''
+    for(const p of posts){
+        const d=new Date(p.created).toLocaleDateString()
+        html+='<div class="post-card" onclick="viewPost(\''+p.id+'\')">'
+        html+='<h3>'+esc(p.title)+'</h3>'
+        html+='<div class="meta">'+d+'</div>'
+        html+='<div class="summary">'+esc(p.summary||p.content.slice(0,200))+'</div>'
+        html+='<div class="actions">'
+        html+='<button onclick="event.stopPropagation();editPost(\''+p.id+'\')">Edit</button>'
+        html+='<button class="del" onclick="event.stopPropagation();deletePost(\''+p.id+'\')">Delete</button>'
+        html+='</div></div>'
+    }
+    list.innerHTML=html
+}
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function openNew(){editingId=null;document.getElementById('editTitle').textContent='New Post';document.getElementById('postTitle').value='';document.getElementById('postContent').value='';document.getElementById('editModal').classList.add('active')}
+function closeEdit(){document.getElementById('editModal').classList.remove('active')}
+async function savePost(){
+    const t=document.getElementById('postTitle').value.trim()
+    const c=document.getElementById('postContent').value.trim()
+    if(!t||!c)return
+    const url=editingId?'/api/post/'+editingId:'/api/post'
+    const m=editingId?'PUT':'POST'
+    try{await fetch(url,{method:m,headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,content:c})});closeEdit();loadPosts()}catch(e){alert('Failed')}
+}
+function editPost(id){const p=posts.find(x=>x.id===id);if(!p)return;editingId=id;document.getElementById('editTitle').textContent='Edit';document.getElementById('postTitle').value=p.title;document.getElementById('postContent').value=p.content;document.getElementById('editModal').classList.add('active')}
+async function deletePost(id){if(!confirm('Delete?'))return;try{await fetch('/api/post/'+id,{method:'DELETE'});loadPosts()}catch(e){}}
+function viewPost(id){const p=posts.find(x=>x.id===id);if(!p)return;document.getElementById('viewTitle').textContent=esc(p.title);document.getElementById('viewMeta').textContent=new Date(p.created).toLocaleString();document.getElementById('viewContent').textContent=p.content;document.getElementById('viewModal').classList.add('active')}
+function closeView(){document.getElementById('viewModal').classList.remove('active')}
+
+checkAuth().then(function(){ return loadPosts().then(function(){ lastPostCount = posts.length }) })
+// Auto-refresh: poll for new posts every 5 seconds
+let lastPostCount = 0
+let notifTimeout = null
+
+function showNotif(msg){
+    const el = document.getElementById('notification')
+    if(!el)return
+    el.textContent = msg
+    el.classList.add('show')
+    if(notifTimeout) clearTimeout(notifTimeout)
+    notifTimeout = setTimeout(function(){ el.classList.remove('show') }, 3000)
+}
+
+setInterval(async function(){
+    try{
+        const r = await fetch('/api/posts')
+        const newPosts = await r.json()
+        if(newPosts.length > lastPostCount && lastPostCount > 0){
+            posts = newPosts
+            render()
+            showNotif('📝 新帖子已发布！')
+        }
+        lastPostCount = newPosts.length
+    }catch(e){}
+}, 5000)</script>
+<footer>&copy; 2026 My Space</footer>
+</body>
+</html>

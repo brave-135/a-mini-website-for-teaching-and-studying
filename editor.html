@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python - My Space</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',sans-serif;background:#0a0e17;color:#e0e0e0;height:100vh;display:flex;flex-direction:column}
+nav{background:#0f1729;border-bottom:1px solid #1e2d4a;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+nav .logo{font-size:22px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .links{display:flex;gap:24px}
+nav .links a{color:#8892b0;text-decoration:none;font-size:15px;padding:6px 0;border-bottom:2px solid transparent;transition:all .3s}
+nav .links a:hover{color:#00d4ff;border-bottom-color:#00d4ff}
+nav .links a.active{color:#00d4ff;border-bottom-color:#00d4ff}
+.editor-container{flex:1;display:flex;flex-direction:column;padding:20px;gap:12px}
+.editor-header{display:flex;justify-content:space-between;align-items:center}
+.editor-header h2{font-size:18px;color:#e0e0e0}
+.editor-header .controls{display:flex;gap:8px}
+.editor-header button{padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-run{background:#4ade80;color:#0a0e17;border:none}
+.btn-run:hover{opacity:.9}
+.btn-clear{background:transparent;border:1px solid #1e2d4a;color:#8892b0}
+.btn-clear:hover{background:#1a2338}
+.split{flex:1;display:flex;gap:12px;min-height:0}
+.code-panel{flex:1;display:flex;flex-direction:column}
+.code-panel label{color:#5a6a8a;font-size:12px;margin-bottom:4px}
+.code-panel textarea{flex:1;background:#0a0e17;border:1px solid #1e2d4a;border-radius:8px;padding:16px;color:#e0e0e0;font-family:Consolas,monospace;font-size:14px;resize:none;line-height:1.5}
+.code-panel textarea:focus{outline:none;border-color:#2a3d66}
+.output-panel{flex:1;display:flex;flex-direction:column}
+.output-panel label{color:#5a6a8a;font-size:12px;margin-bottom:4px}
+.output-box{flex:1;background:#0a0e17;border:1px solid #1e2d4a;border-radius:8px;padding:16px;font-family:Consolas,monospace;font-size:14px;overflow-y:auto;white-space:pre-wrap;line-height:1.5}
+.output-box .stdout{color:#4ade80}
+.output-box .stderr{color:#ff6b6b}
+.output-box .placeholder{color:#4a5a7a}
+.sample-btn{background:transparent;border:1px solid #1e2d4a;color:#8892b0;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px}
+.sample-btn:hover{background:#1a2338}
+.status-bar{color:#5a6a8a;font-size:12px;text-align:center;padding:4px;flex-shrink:0}
+</style>
+</head>
+<body>
+<nav>
+    <div class="logo">My Space</div>
+    <div class="links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/editor.html" class="active">Python</a>
+        <a href="/about.html">About</a>
+    </div>
+</nav>
+<div class="editor-container">
+    <div class="editor-header">
+        <h2>Python Playground</h2>
+        <div class="controls">
+            <button class="sample-btn" onclick="loadSample('hello')">Hello</button>
+            <button class="sample-btn" onclick="loadSample('loop')">Loop</button>
+            <button class="sample-btn" onclick="loadSample('math')">Math</button>
+            <button class="btn-clear" onclick="clearOut()">Clear</button>
+            <button class="btn-run" onclick="runCode()">Run</button>
+        </div>
+    </div>
+    <div class="split">
+        <div class="code-panel"><label>Code</label><textarea id="codeArea" spellcheck="false">print("Hello, World!")</textarea></div>
+        <div class="output-panel"><label>Output</label><div class="output-box" id="outputBox"><span class="placeholder">Run your code to see output...</span></div></div>
+    </div>
+    <div class="status-bar" id="statusBar">Ready | Ctrl+Enter to run</div>
+</div>
+<script>
+const SAMPLES={hello:'print("Hello, World!")\nprint("Welcome to Python Playground")',loop:'for i in range(1,11):\n    print(f"{i} squared = {i*i}")',math:'import math\nprint(f"Pi = {math.pi:.4f}")\nprint(f"Sin(pi/2) = {math.sin(math.pi/2)}")'}
+const ca=document.getElementById('codeArea')
+const ob=document.getElementById('outputBox')
+const sb=document.getElementById('statusBar')
+function loadSample(n){ca.value=SAMPLES[n]||''}
+function clearOut(){ob.innerHTML='<span class="placeholder">Run your code to see output...</span>';sb.textContent='Cleared'}
+async function runCode(){
+    const code=ca.value.trim()
+    if(!code)return
+    ob.innerHTML='<span style="color:#5a6a8a">Running...</span>'
+    sb.textContent='Running...'
+    try{
+        const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
+        const d=await r.json()
+        let h=''
+        if(d.output)h+='<div class="stdout">'+esc(d.output)+'</div>'
+        if(d.error)h+='<div class="stderr">'+esc(d.error)+'</div>'
+        if(!d.output&&!d.error)h+='<span class="placeholder">No output (ran successfully)</span>'
+        ob.innerHTML=h
+        sb.textContent=d.error?'Error':'Done'
+    }catch(e){
+        ob.innerHTML='<div class="stderr">Error: '+e.message+'</div>'
+        sb.textContent='Failed'
+    }
+}
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+ca.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();runCode()}})
+</script>
+<script>
+async function checkNav(){try{const r=await fetch("/api/me");const d=await r.json();if(d.ok){document.getElementById("userInfo").textContent="("+d.user+")";document.getElementById("loginLink").style.display="none";document.getElementById("logoutBtn").style.display="inline-block"}else{document.getElementById("loginLink").style.display="inline"}}catch(e){}}
+async function doLogout(){try{await fetch("/api/logout",{method:"POST"})}catch(e){}window.location.href="/"}
+checkNav()
+</script></body>
+</html>

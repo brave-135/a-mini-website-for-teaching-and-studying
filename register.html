@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - My Space</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','PingFang SC',sans-serif;background:#0a0e17;color:#e0e0e0;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.box{background:#131b30;border:1px solid #1e2d4a;border-radius:16px;padding:40px;width:360px}
+.box h1{text-align:center;font-size:24px;margin-bottom:24px;background:linear-gradient(90deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.box label{color:#5a6a8a;font-size:13px;display:block;margin-bottom:4px;margin-top:16px}
+.box input{width:100%;padding:10px 14px;background:#0a0e17;border:1px solid #1e2d4a;border-radius:8px;color:#e0e0e0;font-size:15px;outline:none}
+.box input:focus{border-color:#00d4ff}
+.box button{width:100%;margin-top:24px;padding:12px;background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer}
+.box button:hover{opacity:.9}
+.box .msg{font-size:13px;text-align:center;margin-top:12px;min-height:20px}
+.box .msg.ok{color:#4ade80}
+.box .msg.err{color:#ff6b6b}
+.back{color:#5a6a8a;font-size:13px;margin-top:20px;text-align:center}
+.back a{color:#00d4ff;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="box">
+    <h1>Register</h1>
+    <label>Username</label>
+    <input type="text" id="userInput" autofocus onkeydown="if(event.key==='Enter')doReg()">
+    <label>Password</label>
+    <input type="password" id="passInput" onkeydown="if(event.key==='Enter')doReg()">
+    <button onclick="doReg()">Register</button>
+    <div class="msg" id="msg"></div>
+</div>
+<div class="back">Already have an account? <a href="/login.html">Login</a></div>
+<script>
+async function doReg(){
+    const u=document.getElementById('userInput').value.trim()
+    const p=document.getElementById('passInput').value.trim()
+    const msg=document.getElementById('msg')
+    if(!u||!p){msg.className='msg err';msg.textContent='Please fill in all fields';return}
+    msg.textContent='Registering...'
+    try{
+        const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:u,pass:p})})
+        const d=await r.json()
+        if(d.ok){
+            msg.className='msg ok'
+            msg.textContent='Registered! Redirecting...'
+            setTimeout(function(){window.location.href='/login.html'},1000)
+        }else{
+            msg.className='msg err'
+            msg.textContent=d.error||'Failed'
+        }
+    }catch(e){msg.className='msg err';msg.textContent='Network error'}
+}
+</script>
+</body>
+</html>
